@@ -5,7 +5,7 @@
  * distribute this software, either in source code form or as a compiled
  * binary, for any purpose, commercial or non-commercial, and by any
  * means.
- * 
+ *
  * In jurisdictions that recognize copyright laws, the author or authors
  * of this software dedicate any and all copyright interest in the
  * software to the public domain. We make this dedication for the benefit
@@ -13,7 +13,7 @@
  * successors. We intend this dedication to be an overt act of
  * relinquishment in perpetuity of all present and future rights to this
  * software under copyright law.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -21,7 +21,7 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  * For more information, please refer to <http://unlicense.org/>
 */
 
@@ -55,7 +55,6 @@ public final class InspectQuestion extends Question {
 
 	public InspectQuestion(final Creature aResponder, final String aTitle, final String aQuestion, final long aTarget) {
 		super(aResponder, aTitle, aQuestion, 870, aTarget);
-
 	}
 
 	@Override
@@ -80,10 +79,21 @@ public final class InspectQuestion extends Question {
 		final StringBuilder questionString = new StringBuilder();
 		questionString.append(getBmlHeaderNoQuestion());
 		questionString.append(bmlBlank());
-		questionString.append("label{text='" + StringUtilities.raiseFirstLetter(this.inspectTarget.getName())
-				+ "';type='bold';color='255,255,0'}");
-		questionString.append("label{text='" + inspectTarget.examine() + "';type='italic';color='255,255,125'}");
-		questionString.append(bmlBlank());
+		questionString.append("label{text='" + this.title + "';type='bold';color='255,255,0'}");
+		String line1 = " ";
+		String line2 = " ";
+		final String examineText = inspectTarget.examine();
+		if (examineText.length() > 90) {
+			final int split = examineText.lastIndexOf(" ", 90);
+			if (split > 0) {
+				line1 = examineText.substring(0, split);
+				line2 = examineText.substring(split + 1);
+			}
+		} else {
+			line1 = examineText;
+		}
+		questionString.append("label{text='" + line1 + "';type='italic';color='255,255,125'}");
+		questionString.append("label{text='" + line2 + "';type='italic';color='255,255,125'}");
 		questionString.append("harray{varray{");
 		questionString.append(bmlLabel(StringUtilities.raiseFirstLetter(inspectTarget.getStatus().getBodyType())));
 		if (inspectTarget.isCaredFor()) {
@@ -96,6 +106,7 @@ public final class InspectQuestion extends Question {
 						- Players.getInstance().getLastLogoutForPlayer(careTaker) > 1209600000L) {
 					Creatures.getInstance().setCreatureProtected(inspectTarget, -10L, false);
 				}
+				questionString.append(bmlLabel("This animal is not currently being cared for."));
 			}
 		} else {
 			questionString.append(bmlLabel("This animal is not currently being cared for."));
@@ -140,6 +151,7 @@ public final class InspectQuestion extends Question {
 				questionString.append(bmlLabel("It has the brand of " + village.getName() + "."));
 			} catch (NoSuchVillageException nsv) {
 				brand.deleteBrand();
+				questionString.append(bmlLabel("This horse is not currently branded."));
 			}
 		} else if (inspectTarget.isHorse()) {
 			questionString.append(bmlLabel("This horse is not currently branded."));
@@ -208,10 +220,10 @@ public final class InspectQuestion extends Question {
 				}
 			}
 		}
-		questionString.append(bmlLabel("Total number of traits: " + traitArrayList.size()));
+		questionString.append(bmlLabel(" Total number of traits: " + traitArrayList.size()));
 		questionString.append("table{rows='1';cols='4';label{text=''};" + this.colHeader("   Type   ", 1, 0)
 				+ this.colHeader("                        Trait                        ", 2, 0)
-				+ this.colHeader("                        Effect                       ", 3, 0));
+				+ this.colHeader("                          Effect                         ", 3, 0));
 		if (traitArrayList.size() > 0) {
 			for (int id : traitArrayList) {
 				questionString.append("label{text=''};label{text='" + getPosNegString(id) + "'};label{text='"
@@ -228,8 +240,16 @@ public final class InspectQuestion extends Question {
 		questionString.append(
 				"harray {label{text='                                                             '};button{text="
 						+ "'Close';id='submit'}}}};null;null;}");
-		this.getResponder().getCommunicator().sendBml(570, 370, true, true, questionString.toString(), 200, 200, 200,
+		this.getResponder().getCommunicator().sendBml(570, 374, true, true, questionString.toString(), 200, 200, 200,
 				this.title);
+	}
+
+	final private String bmlBlank() {
+		return "label{text=' '};";
+	}
+
+	final private String bmlLabel(final String text) {
+		return "label{text='" + text + "'};";
 	}
 
 	final private String getTraitBySkill(int t) {
@@ -248,14 +268,6 @@ public final class InspectQuestion extends Question {
 			retString = "Negative';color='255,0,0";
 		}
 		return retString;
-	}
-
-	final private String bmlBlank() {
-		return "label{text=' '};";
-	}
-
-	final private String bmlLabel(final String text) {
-		return "label{text='" + text + "'};";
 	}
 
 	final private String getEffectString(int t) {

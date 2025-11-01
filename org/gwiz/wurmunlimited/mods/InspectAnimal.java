@@ -38,7 +38,7 @@ import org.gotti.wurmunlimited.modsupport.actions.ModActions;
 
 public class InspectAnimal implements WurmServerMod, PreInitable, Versioned, ServerStartedListener {
 
-	private static final String version = "0.38";
+	private static final String version = "0.41";
 	private static Logger logger = Logger.getLogger(InspectAnimal.class.getName());
 
 	@Override

@@ -5,7 +5,7 @@
  * distribute this software, either in source code form or as a compiled
  * binary, for any purpose, commercial or non-commercial, and by any
  * means.
- * 
+ *
  * In jurisdictions that recognize copyright laws, the author or authors
  * of this software dedicate any and all copyright interest in the
  * software to the public domain. We make this dedication for the benefit
@@ -13,7 +13,7 @@
  * successors. We intend this dedication to be an overt act of
  * relinquishment in perpetuity of all present and future rights to this
  * software under copyright law.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -21,7 +21,7 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  * For more information, please refer to <http://unlicense.org/>
 */
 
@@ -53,7 +53,7 @@ public class InspectAction implements ActionPerformer, BehaviourProvider, ModAct
 
 	public InspectAction() {
 		actionId = (short) ModActions.getNextActionId();
-		actionEntry = new ActionEntryBuilder(actionId, "Inspect animal", "inspecting", new int[] { 0, 25, 29, 37, 43 })
+		actionEntry = new ActionEntryBuilder(actionId, "Inspect animal", "inspecting", new int[] { 0, 23, 25, 29, 37 })
 				.build();
 		ModActions.registerAction(actionEntry);
 	}
@@ -62,7 +62,7 @@ public class InspectAction implements ActionPerformer, BehaviourProvider, ModAct
 	public boolean action(Action action, Creature performer, Creature target, short num, float counter) {
 		performer.getCommunicator()
 				.sendNormalServerMessage("You take a closer look at " + target.getNameWithGenus() + ".");
-		final InspectQuestion question = new InspectQuestion((Player) performer,
+		final InspectQuestion question = new InspectQuestion(performer,
 				StringUtilities.raiseFirstLetter(target.getName()), "", -1L);
 		question.inspectTarget = target;
 		question.sendQuestion();
