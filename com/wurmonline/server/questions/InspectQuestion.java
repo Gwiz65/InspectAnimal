@@ -78,7 +78,7 @@ public final class InspectQuestion extends Question {
 		final StringBuilder questionString = new StringBuilder();
 		questionString.append(getBmlHeaderNoQuestion());
 		questionString.append(bmlBlank());
-		questionString.append("label{text=\"" + this.title + "\";type='bold';color='255,255,0'}");
+		questionString.append("label{text=\"" + this.title + "\";type=\"bold\";color=\"255,255,0\"}");
 		String line1 = " ";
 		String line2 = " ";
 		final String examineText = inspectTarget.examine();
@@ -91,8 +91,8 @@ public final class InspectQuestion extends Question {
 		} else {
 			line1 = examineText;
 		}
-		questionString.append("label{text='" + line1 + "';type='italic';color='255,255,125'}");
-		questionString.append("label{text='" + line2 + "';type='italic';color='255,255,125'}");
+		questionString.append("label{text=\"" + line1 + "\";type=\"italic\";color=\"255,255,125\"}");
+		questionString.append("label{text=\"" + line2 + "\";type=\"italic\";color=\"255,255,125\"}");
 		questionString.append("harray{varray{");
 		questionString.append(bmlLabel(StringUtilities.raiseFirstLetter(inspectTarget.getStatus().getBodyType())));
 		if (inspectTarget.hasTrait(63)) {
@@ -161,7 +161,7 @@ public final class InspectQuestion extends Question {
 		} else {
 			questionString.append(bmlLabel("This animal is not pregnant."));
 		}
-		questionString.append("};varray{label{text='    '}};varray{");
+		questionString.append("};varray{label{text=\"  \"}};varray{");
 		if (inspectTarget.isHorse()) {
 			questionString.append(bmlLabel("Its colour is " + inspectTarget.getColourName() + "."));
 		} else {
@@ -238,13 +238,13 @@ public final class InspectQuestion extends Question {
 			}
 		}
 		questionString.append(bmlLabel(" Total number of traits: " + traitArrayList.size()));
-		questionString.append("table{rows='1';cols='4';label{text=''};" + this.colHeader("   Type   ", 1, 0)
+		questionString.append("table{rows=\"1\";cols=\"4\";label{text=\"\"};" + this.colHeader("   Type   ", 1, 0)
 				+ this.colHeader("                        Trait                        ", 2, 0)
 				+ this.colHeader("                          Effect                         ", 3, 0));
 		if (traitArrayList.size() > 0) {
 			for (int id : traitArrayList) {
-				questionString.append("label{text=''};label{text='" + getPosNegString(id) + "'};label{text='"
-						+ getTraitBySkill(id) + "'};label{text='" + getEffectString(id) + "'};");
+				questionString.append("label{text=\"\"};label{text=\"" + getPosNegString(id) + "\"};label{text=\""
+						+ getTraitBySkill(id) + "\"};label{text=\"" + getEffectString(id) + "\"};");
 			}
 		}
 		questionString.append("}");
@@ -255,18 +255,18 @@ public final class InspectQuestion extends Question {
 		}
 		questionString.append(bmlBlank());
 		questionString.append(
-				"harray {label{text='                                                             '};button{text="
-						+ "' Close ';id='submit'}}}};null;null;}");
-		this.getResponder().getCommunicator().sendBml(570, 384, true, true, questionString.toString(), 200, 200, 200,
+				"harray {label{text=\"                                                             \"};button{text="
+						+ "\" Close \";id=\"submit\"}}}};null;null;}");
+		this.getResponder().getCommunicator().sendBml(570, 388, true, true, questionString.toString(), 200, 200, 200,
 				this.title);
 	}
 
 	final private String bmlBlank() {
-		return "label{text=' '};";
+		return "label{text=\" \"};";
 	}
 
 	final private String bmlLabel(final String text) {
-		return "label{text='" + text + "'};";
+		return "label{text=\"" + text + "\"};";
 	}
 
 	final private String getTraitBySkill(int t) {
@@ -280,9 +280,9 @@ public final class InspectQuestion extends Question {
 	}
 
 	final private String getPosNegString(int t) {
-		String retString = "Positive';color='0,255,0";
+		String retString = "Positive\";color=\"0,255,0";
 		if (Traits.isTraitNegative(t)) {
-			retString = "Negative';color='255,0,0";
+			retString = "Negative\";color=\"255,0,0";
 		}
 		return retString;
 	}
