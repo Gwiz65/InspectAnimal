@@ -65,8 +65,7 @@ public final class InspectQuestion extends Question {
 		}
 		for (final String key : this.getAnswer().stringPropertyNames()) {
 			if (key.startsWith("sort")) {
-				final InspectQuestion question = new InspectQuestion(this.getResponder(),
-						StringUtilities.raiseFirstLetter(this.inspectTarget.getName()), "", -1L);
+				final InspectQuestion question = new InspectQuestion(this.getResponder(), this.getTitle(), "", -1L);
 				question.inspectTarget = this.inspectTarget;
 				question.sendQuestion();
 				return;
@@ -79,7 +78,7 @@ public final class InspectQuestion extends Question {
 		final StringBuilder questionString = new StringBuilder();
 		questionString.append(getBmlHeaderNoQuestion());
 		questionString.append(bmlBlank());
-		questionString.append("label{text='" + this.title + "';type='bold';color='255,255,0'}");
+		questionString.append("label{text=\"" + this.title + "\";type='bold';color='255,255,0'}");
 		String line1 = " ";
 		String line2 = " ";
 		final String examineText = inspectTarget.examine();
@@ -96,6 +95,25 @@ public final class InspectQuestion extends Question {
 		questionString.append("label{text='" + line2 + "';type='italic';color='255,255,125'}");
 		questionString.append("harray{varray{");
 		questionString.append(bmlLabel(StringUtilities.raiseFirstLetter(inspectTarget.getStatus().getBodyType())));
+		if (inspectTarget.hasTrait(63)) {
+			questionString.append(bmlLabel("It has been breed in captivity."));
+		} else {
+			questionString.append(bmlLabel("This is a wild creature."));
+		}
+		final Brand brand = Creatures.getInstance().getBrand(inspectTarget.getWurmId());
+		if (brand != null) {
+			try {
+				final Village village = Villages.getVillage((int) brand.getBrandId());
+				questionString.append(bmlLabel("It has the brand of " + village.getName() + "."));
+			} catch (NoSuchVillageException nsv) {
+				brand.deleteBrand();
+				questionString.append(bmlLabel("This horse is not currently branded."));
+			}
+		} else if (inspectTarget.isHorse()) {
+			questionString.append(bmlLabel("This horse is not currently branded."));
+		} else {
+			questionString.append(bmlLabel("This aninimal cannot be branded."));
+		}
 		if (inspectTarget.isCaredFor()) {
 			final long careTaker = inspectTarget.getCareTakerId();
 			final PlayerInfo info = PlayerInfoFactory.getPlayerInfoWithWurmId(careTaker);
@@ -135,30 +153,6 @@ public final class InspectQuestion extends Question {
 		} else {
 			questionString.append(bmlLabel("This animal is not tamed."));
 		}
-		if (inspectTarget.isDomestic()) {
-			if (System.currentTimeMillis() - inspectTarget.getLastGroomed() > 172800000L) {
-				questionString.append(bmlLabel("This animal could use some grooming."));
-			} else {
-				questionString.append(bmlLabel("This animal looks well groomed."));
-			}
-		} else {
-			questionString.append(bmlLabel("This animal cannot be groomed."));
-		}
-		final Brand brand = Creatures.getInstance().getBrand(inspectTarget.getWurmId());
-		if (brand != null) {
-			try {
-				final Village village = Villages.getVillage((int) brand.getBrandId());
-				questionString.append(bmlLabel("It has the brand of " + village.getName() + "."));
-			} catch (NoSuchVillageException nsv) {
-				brand.deleteBrand();
-				questionString.append(bmlLabel("This horse is not currently branded."));
-			}
-		} else if (inspectTarget.isHorse()) {
-			questionString.append(bmlLabel("This horse is not currently branded."));
-		} else {
-			questionString.append(bmlLabel("This aninimal cannot be branded."));
-		}
-		questionString.append("};varray{label{text='       '}};varray{");
 		if (inspectTarget.isPregnant()) {
 			final Offspring offspring = inspectTarget.getOffspring();
 			final int daysLeft = offspring.getDaysLeft();
@@ -167,11 +161,7 @@ public final class InspectQuestion extends Question {
 		} else {
 			questionString.append(bmlLabel("This animal is not pregnant."));
 		}
-		if (inspectTarget.hasTrait(63)) {
-			questionString.append(bmlLabel("It has been breed in captivity."));
-		} else {
-			questionString.append(bmlLabel("This is a wild creature."));
-		}
+		questionString.append("};varray{label{text='    '}};varray{");
 		if (inspectTarget.isHorse()) {
 			questionString.append(bmlLabel("Its colour is " + inspectTarget.getColourName() + "."));
 		} else {
@@ -200,6 +190,33 @@ public final class InspectQuestion extends Question {
 		} else {
 			questionString.append(bmlLabel(
 					StringUtilities.raiseFirstLetter(inspectTarget.getHisHerItsString()) + " father is unknown."));
+		}
+		if (inspectTarget.isDomestic()) {
+			if (inspectTarget.canBeGroomed()) {
+				questionString.append(bmlLabel("This animal could use some grooming."));
+			} else {
+				questionString.append(bmlLabel("This animal looks well groomed."));
+			}
+		} else {
+			questionString.append(bmlLabel("This animal cannot be groomed."));
+		}
+		if (inspectTarget.isMilkable()) {
+			if (inspectTarget.isMilked()) {
+				questionString.append(bmlLabel("This aninimal has already been milked."));
+			} else {
+				questionString.append(bmlLabel("You can milk this animal."));
+			}
+		} else {
+			questionString.append(bmlLabel("This aninimal cannot be milked."));
+		}
+		if (inspectTarget.isWoolProducer()) {
+			if (inspectTarget.isSheared()) {
+				questionString.append(bmlLabel("This aninimal has already been sheared."));
+			} else {
+				questionString.append(bmlLabel("You can shear this animal."));
+			}
+		} else {
+			questionString.append(bmlLabel("This aninimal cannot be sheared."));
 		}
 		questionString.append("}}");
 		questionString.append(bmlBlank());
@@ -239,8 +256,8 @@ public final class InspectQuestion extends Question {
 		questionString.append(bmlBlank());
 		questionString.append(
 				"harray {label{text='                                                             '};button{text="
-						+ "'Close';id='submit'}}}};null;null;}");
-		this.getResponder().getCommunicator().sendBml(570, 374, true, true, questionString.toString(), 200, 200, 200,
+						+ "' Close ';id='submit'}}}};null;null;}");
+		this.getResponder().getCommunicator().sendBml(570, 384, true, true, questionString.toString(), 200, 200, 200,
 				this.title);
 	}
 
@@ -314,6 +331,6 @@ public final class InspectQuestion extends Question {
 			}
 		} catch (NoSuchSkillException e) {
 		}
-		return "                          ???";
+		return "                             ???";
 	}
 }

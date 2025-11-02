@@ -53,8 +53,7 @@ public class InspectAction implements ActionPerformer, BehaviourProvider, ModAct
 
 	public InspectAction() {
 		actionId = (short) ModActions.getNextActionId();
-		actionEntry = new ActionEntryBuilder(actionId, "Inspect animal", "inspecting", new int[] { 0, 23, 25, 29, 37 })
-				.build();
+		actionEntry = new ActionEntryBuilder(actionId, "Inspect animal", "inspecting").build();
 		ModActions.registerAction(actionEntry);
 	}
 
@@ -63,7 +62,7 @@ public class InspectAction implements ActionPerformer, BehaviourProvider, ModAct
 		performer.getCommunicator()
 				.sendNormalServerMessage("You take a closer look at " + target.getNameWithGenus() + ".");
 		final InspectQuestion question = new InspectQuestion(performer,
-				StringUtilities.raiseFirstLetter(target.getName()), "", -1L);
+				StringUtilities.raiseFirstLetterOnly(target.getName()), "", -1L);
 		question.inspectTarget = target;
 		question.sendQuestion();
 		return true;
@@ -72,6 +71,27 @@ public class InspectAction implements ActionPerformer, BehaviourProvider, ModAct
 	@Override
 	public boolean action(Action action, Creature performer, Item source, Creature target, short num, float counter) {
 		return this.action(action, performer, target, num, counter);
+	}
+
+	@Override
+	public List<ActionEntry> getBehavioursFor(Creature performer, Creature target) {
+		if (performer instanceof Player && target != null && target.isAnimal()) {
+			try {
+				Skill breeding;
+				breeding = performer.getSkills().getSkill(10085);
+				final double knowledge = breeding.getKnowledge(0.0);
+				if (knowledge > 20.0) {
+					return Arrays.asList(actionEntry);
+				}
+			} catch (NoSuchSkillException e) {
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<ActionEntry> getBehavioursFor(Creature performer, Item source, Creature target) {
+		return this.getBehavioursFor(performer, target);
 	}
 
 	@Override
@@ -88,30 +108,4 @@ public class InspectAction implements ActionPerformer, BehaviourProvider, ModAct
 	public BehaviourProvider getBehaviourProvider() {
 		return this;
 	}
-
-	@Override
-	public List<ActionEntry> getBehavioursFor(Creature performer, Creature target) {
-		if (performer instanceof Player && target != null && target.isAnimal()) {
-			try {
-				Skill breeding;
-				breeding = performer.getSkills().getSkill(10085);
-				final double knowledge = breeding.getKnowledge(0.0);
-				if (knowledge > 20.0) {
-					return Arrays.asList(actionEntry);
-				} else {
-					return null;
-				}
-			} catch (NoSuchSkillException e) {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public List<ActionEntry> getBehavioursFor(Creature performer, Item source, Creature target) {
-		return this.getBehavioursFor(performer, target);
-	}
-
 }
